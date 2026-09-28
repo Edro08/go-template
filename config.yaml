@@ -7,3 +7,10 @@ server:
   idleTimeout: "60s"
   shutdown:
     timeout: "5m"
+  health:
+    endpoints:
+      live: "/health/live"
+      ready: "/health/ready"
+      startup: "/health/startup"
+
+

@@ -2,6 +2,7 @@
 
 - **Mocks tests**:
     - For function or interface dependencies invoked directly by the code under test, use the project's existing mocks or `testify/mock` when it fits the package's patterns.  
+    - For SQL repositories, use `github.com/DATA-DOG/go-sqlmock` to mock database connections and verify queries, arguments, results, and errors.
     - For REST or other HTTP integrations, use `net/http/httptest` to run a test server and verify requests, responses, status codes, and error handling. Avoid mocking the HTTP client when a test server can exercise the real request flow.  
 - **Table-driven tests**: Use table-driven tests for related cases when they improve clarity and reduce duplication; use separate tests when that is clearer.  
 - **Package placement**: Place tests in the same package as the code under test by default. Use an external `_test` package when testing the public API or when isolation requires it.  

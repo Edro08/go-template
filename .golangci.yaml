@@ -1,0 +1,45 @@
+version: "2"  
+  
+run:  
+  # Tiempo máximo de espera para que los linters terminen su ejecución  
+  timeout: 5m  
+  # Indica si se deben incluir los archivos de prueba (*_test.go) en el análisis  
+  tests: false  
+  
+linters:  
+  enable:  
+    - revive  
+    - staticcheck  
+    - gosec  
+  settings:  
+    # Configuración específica para el linter staticcheck  
+    staticcheck:  
+      checks:  
+        # Deshabilita la regla SA1029: "no usar tipos básicos como llaves en context.WithValue"  
+        - "-SA1029"  
+    # Configuración específica para el linter revive  
+    revive:  
+      # Establece el nivel de severidad por defecto para las alertas  
+      severity: warning  
+      # Indica si se deben habilitar todas las reglas disponibles (falso para seleccionar manualmente)  
+      enable-all-rules: false  
+      rules:  
+        # Controla la longitud de las funciones (máximo 50 líneas)  
+        - name: function-length  
+          arguments: [ 0, 50 ]  
+        # Controla el límite de parámetros de entrada en una función (máximo 4) (ej. func(a, b, c, d) )  
+        - name: argument-limit  
+          arguments: [ 4 ]  
+        # Controla el límite de valores de retorno en la firma de la función (máximo 3) (ej. func() (a, b, c))  
+        - name: function-result-limit  
+          arguments: [ 2 ]  
+        # Controla la complejidad cognitiva para asegurar que el código sea fácil de entender  
+        - name: cognitive-complexity  
+          severity: error  
+          arguments: [ 10 ]  
+        # Evita búsquedas ineficientes en mapas (ej. verificar existencia y luego obtener valor innecesariamente)  
+        - name: inefficient-map-lookup  
+    # Configuración específica para el linter gosec  
+    gosec:  
+      # Establece el nivel de severidad por defecto para las alertas  
+      severity: medium

@@ -1,0 +1,9 @@
+server:
+  port: "80"
+  name: "go-template"
+  readHeaderTimeout: "10s"
+  readTimeout: "15s"
+  writeTimeout: "30s"
+  idleTimeout: "60s"
+  shutdown:
+    timeout: "5m"

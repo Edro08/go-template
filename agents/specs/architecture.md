@@ -30,9 +30,7 @@ internal/
         └── storage/
 
 kit/
-├── config/
 ├── constants/
-├── logger/
 └── utils/
 
 agents/
@@ -229,18 +227,7 @@ application use cases instead.
 
 ## Shared Packages
 
-### `kit/config`
-
-Provides configuration loading and typed access to configuration values.
-
-It must remain independent from business modules and must not import packages
-under `internal`.
-
-### `kit/logger`
-
-Provides structured logging and logger configuration.
-
-It must not contain business logic or depend on a specific bounded context.
+Shared utilities and foundational technical components (such as configuration and logging) are provided by the `github.com/edro08/go-utils` library (`config`, `logger`, etc.). Local project utilities reside under `kit`:
 
 ### `kit/constants`
 

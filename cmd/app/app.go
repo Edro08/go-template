@@ -3,12 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
-	"go-template/internal/health"
-	"go-template/kit/config"
-	"go-template/kit/logger"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/edro08/go-utils/config"
+	"github.com/edro08/go-utils/logger"
+
+	"go-template/internal/health"
 )
 
 type Options struct {

@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"go-template/cmd/app"
-	"go-template/kit/config"
 	"go-template/kit/constants"
-	"go-template/kit/logger"
 	"go-template/kit/utils"
 	"log"
 	"net/http"
@@ -17,6 +15,9 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/edro08/go-utils/config"
+	"github.com/edro08/go-utils/logger"
 )
 
 const (
@@ -60,7 +61,9 @@ func main() {
 	sc.wg = &sync.WaitGroup{}
 
 	loadLogger(&sc)
-	defer sc.logger.Close()
+	defer func() {
+		_ = sc.logger.Close()
+	}()
 	loadConfigurations(&sc)
 
 	// 2. Apps

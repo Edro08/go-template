@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"go-template/internal/health/checks"
-	"go-template/kit/logger"
+
+	"github.com/edro08/go-utils/logger"
 )
 
 const readinessTimeout = 2 * time.Second

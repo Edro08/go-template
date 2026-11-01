@@ -1,2 +1,2 @@
 # go-template
-Go template with hexagonal architecture and built-in instructions for AI coding agents
+Plantilla base en Go con arquitectura hexagonal e instrucciones integradas para agentes de codificación con IA.

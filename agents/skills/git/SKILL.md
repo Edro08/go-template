@@ -1,51 +1,51 @@
 ---
 name: git
-description: Convenciones de Git, formato de mensajes de commit prefijados con la rama actual y confirmación explícita previa a cualquier commit.
+description: Git workflow conventions, branch-prefixed commit message formatting, and mandatory explicit confirmation rule before committing.
 ---
 
 # Git Workflow & Commit Conventions Skill
 
-Usa esta skill al gestionar ramas, preparar cambios, redactar mensajes de commit y realizar operaciones de Git en este repositorio.
+Use this skill when managing branches, preparing changes, drafting commit messages, and performing Git operations across any repository.
 
-## 1. Formato Obligatorio del Mensaje de Commit
+## 1. Mandatory Commit Message Format
 
-Todo commit **DEBE** comenzar estrictamente con el nombre exacto de la rama en la que se está trabajando, seguido de `: ` y la descripción concisa del cambio en presente o imperativo.
+Every commit message **MUST** strictly start with the exact name of the active branch, followed by `: ` and a concise description of the change written in the imperative or present tense.
 
-### Estructura:
+### Structure:
 
 ```text
-"<nombre-de-rama>: <descripción del cambio>"
+"<branch-name>: <change description>"
 ```
 
-### Ejemplos según la rama:
+### Examples by branch type:
 
-* **Rama de tarea (`TASK-...`)**:
-  - Rama: `TASK-001`
-  - Commit: `"TASK-001: implement health checks for database"`
+* **Task branch (`TASK-...`)**:
+    - Branch: `TASK-001`
+    - Commit: `"TASK-001: implement health checks for database"`
 
-* **Rama de característica (`feat/...`)**:
-  - Rama: `feat/integrate-go-utils`
-  - Commit: `"feat/integrate-go-utils: add git convention skill and register in agents instructions"`
+* **Feature branch (`feat/...`)**:
+    - Branch: `feat/integrate-go-utils`
+    - Commit: `"feat/integrate-go-utils: add git convention skill and register in agent instructions"`
 
-* **Rama de corrección (`fix/...`)**:
-  - Rama: `fix/read-timeout`
-  - Commit: `"fix/read-timeout: adjust server timeout to prevent early disconnect"`
-
----
-
-## 2. Confirmación Explícita del Usuario (Regla de Oro)
-
-1. **Nunca hacer commit automáticamente**:
-   - Los agentes **NUNCA** deben ejecutar `git commit` por iniciativa propia ni como parte de una cadena de tareas sin solicitud previa.
-2. **Dejar cambios listos en el Working Tree**:
-   - Tras realizar las modificaciones de código y validar los tests, los cambios deben permanecer preparados y visibles en el área de trabajo.
-3. **Esperar la orden del usuario**:
-   - Solo se procederá a commitear y hacer push cuando el usuario lo pida expresamente (ej: *"haz commit"*, *"commitea y sube"*).
+* **Bugfix branch (`fix/...`)**:
+    - Branch: `fix/read-timeout`
+    - Commit: `"fix/read-timeout: adjust server timeout to prevent early disconnect"`
 
 ---
 
-## 3. Flujo de Ramas
+## 2. Explicit User Confirmation (Golden Rule)
 
-- **Ramas de trabajo**: Todo desarrollo o corrección debe realizarse en una rama dedicada (`feat/*`, `fix/*`, `TASK-*`).
-- **Ramas protegidas**: No trabajar ni commitear directamente sobre `main` o `master`.
-- **Detección de rama**: Antes de redactar el mensaje de commit, verificar la rama activa ejecutando `git branch --show-current`.
+1. **Never commit automatically**:
+    - AI agents must **NEVER** run `git commit` autonomously or as part of an automated chain without prior user request.
+2. **Keep changes prepared in the Working Tree**:
+    - After modifying code and passing verification tests, leave changes staged or ready in the working area.
+3. **Wait for explicit user approval**:
+    - Only proceed with `git commit` and `git push` when the user explicitly instructs it (e.g., *"commit"*, *"commit and push"*).
+
+---
+
+## 3. Branching Workflow
+
+- **Dedicated working branches**: All development and bug fixes must occur in a dedicated branch (`feat/*`, `fix/*`, `TASK-*`).
+- **Protected branches**: Never develop or commit directly to `main` or `master`.
+- **Active branch verification**: Always check the active branch (e.g., via `git branch --show-current`) before drafting commit messages.

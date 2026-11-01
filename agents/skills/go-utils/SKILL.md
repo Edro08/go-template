@@ -1,56 +1,56 @@
 ---
 name: go-utils
-description: Guía de uso y patrones de integración de la librería compartida go-utils (config, logger, cors, jwt y cipher) en microservicios.
+description: Usage guidelines and integration patterns for the shared go-utils library (config, logger, cors, jwt, and cipher) across microservices.
 ---
 
 # go-utils Integration Skill
 
-Usa esta skill cuando necesites integrar, configurar o utilizar utilidades de la librería `github.com/edro08/go-utils` en el microservicio (`go-template`).
+Use this skill whenever you need to integrate, configure, or use utilities from the shared library `github.com/edro08/go-utils` in this microservice (`go-template`).
 
-## Principios Generales
+## General Principles
 
-- **Dependencia compartida**: `go-utils` es la librería base transversal para todos los microservicios. No dupliques su funcionalidad dentro de `kit/` ni en paquetes internos.
-- **Inyección por interfaces**: Siempre que un componente requiera configuración o registro de logs, inyecta las interfaces `config.IConfig` y `logger.ILogger` en lugar de referencias a structs concretos.
-- **Inicialización en el Composition Root**: La creación e instanciación de configuraciones, loggers y middlewares CORS debe realizarse en `cmd/main.go` o `cmd/app/app.go`.
+- **Shared dependency**: `go-utils` is the foundational cross-cutting library for all microservices. Do not duplicate its functionality inside `kit/` or internal packages.
+- **Interface injection**: Whenever a component requires configuration or logging, inject the `config.IConfig` and `logger.ILogger` interfaces instead of concrete struct references.
+- **Composition Root initialization**: Instantiation and setup of configurations, loggers, and CORS middlewares must occur in the Composition Root (`cmd/main.go` or `cmd/app/app.go`).
 
 ---
 
-## 1. Configuración (`config`)
+## 1. Configuration (`config`)
 
 Import: `"github.com/edro08/go-utils/config"`
 
-### Inicialización y Carga
+### Initialization and Loading
 
 ```go
 cfg := config.New(config.Options{
-    Separator: ".", // opcional, por defecto es "."
+    Separator: ".", // optional, defaults to "."
 })
 
-// Cargar desde archivo YAML
+// Load from YAML file
 if err := cfg.LoadFile("./config.yaml"); err != nil {
-    // manejar error
+    // handle error
 }
 ```
 
-### Acceso a Valores
+### Accessing Values
 
-El acceso es seguro contra concurrencia y soporta navegación por claves anidadas separadas por punto:
+Access is thread-safe and supports dot-separated nested key traversal:
 
 ```go
-// Valores primitivos
+// Primitive values
 host := cfg.GetString("server.host")
 port := cfg.GetInt("server.port")
 enabled := cfg.GetBool("features.metrics.enabled")
 timeout := cfg.GetFloat("server.timeout")
 
-// Mapas y slices
+// Maps and slices
 endpoints := cfg.GetMapString("server.health.endpoints")
 allowedHosts := cfg.GetSliceString("cors.allowedOrigins")
 ```
 
-### Contrato de Interfaz (`IConfig`)
+### Interface Contract (`IConfig`)
 
-Usa `config.IConfig` como tipo en structs y firmas de funciones que consuman configuración:
+Use `config.IConfig` in structs and function signatures that consume configuration:
 
 ```go
 type Options struct {
@@ -64,26 +64,26 @@ type Options struct {
 
 Import: `"github.com/edro08/go-utils/logger"`
 
-### Inicialización
+### Initialization
 
 ```go
 log, err := logger.New(logger.Options{
-    Output:   logger.Stdout,   // Stdout, File, o Both
-    Format:   logger.FormatJSON, // FormatJSON o FormatText
+    Output:   logger.Stdout,     // Stdout, File, or Both
+    Format:   logger.FormatJSON, // FormatJSON or FormatText
     MinLevel: logger.INFO,       // DEBUG, INFO, WARN, ERROR, FATAL
-    FilePath: "./logs/app.log", // Requerido si Output es File o Both
+    FilePath: "./logs/app.log",   // Required if Output is File or Both
 })
 if err != nil {
-    // manejar error
+    // handle error
 }
 defer func() {
     _ = log.Close()
 }()
 ```
 
-### Escritura de Logs
+### Logging Entries
 
-Los métodos aceptan un `title` (categoría o componente) y argumentos clave-valor en pares:
+Methods accept a `title` (category or component tag) and key-value arguments in pairs:
 
 ```go
 log.Info("SERVER", "status", "listening", "port", 8080)
@@ -91,24 +91,24 @@ log.Warn("STORAGE", "retry_attempt", 2, "error", err.Error())
 log.Error("DATABASE", "error", err.Error(), "traceID", traceID)
 log.Debug("PAYLOAD", "body", string(rawPayload))
 
-// Fatal escribe el log con severidad FATAL y ejecuta os.Exit(1)
+// Fatal logs with FATAL severity and executes os.Exit(1)
 log.Fatal("MAIN", "error", "critical startup failure")
 ```
 
-### Contextualización con `With` y `WithGroup`
+### Contextual Attributes with `With` and `WithGroup`
 
 ```go
-// Crear logger derivado con atributos persistentes
+// Create a derived logger with persistent contextual attributes
 requestLogger := log.With("traceID", traceID, "userID", userID)
 requestLogger.Info("REQUEST", "endpoint", "/api/v1/users")
 
-// Crear logger derivado con grupo de atributos
+// Create a derived logger with grouped attributes
 dbLogger := log.WithGroup("database")
 ```
 
-### Contrato de Interfaz (`ILogger`)
+### Interface Contract (`ILogger`)
 
-Inyecta siempre `logger.ILogger` en tus handlers, casos de uso y adapters:
+Always inject `logger.ILogger` into handlers, use cases, and adapters:
 
 ```go
 type Handler struct {
@@ -122,15 +122,15 @@ func NewHandler(log logger.ILogger) *Handler {
 
 ---
 
-## 3. Middleware CORS (`cors`)
+## 3. CORS Middleware (`cors`)
 
 Import: `"github.com/edro08/go-utils/cors"`
 
-### Configuración y Middleware
+### Configuration and Middleware
 
 ```go
 c, err := cors.NewCors(cors.Options{
-    AllowedOrigins:   []string{"https://mi-dominio.com", "http://localhost:3000"},
+    AllowedOrigins:   []string{"https://my-domain.com", "http://localhost:3000"},
     AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
     AllowedHeaders:   []string{"Content-Type", "Authorization", "X-Trace-ID"},
     ExposedHeaders:   []string{"X-Total-Count"},
@@ -138,13 +138,23 @@ c, err := cors.NewCors(cors.Options{
     MaxAge:           3600,
 })
 if err != nil {
-    // manejar error de configuración
+    // handle configuration error
 }
 
-// Envolver el ServeMux o router HTTP:
+// Wrap ServeMux or HTTP router:
 httpServer := &http.Server{
     Addr:    ":8080",
     Handler: c.Middleware(mux),
+}
+```
+
+### Interface Contract (`CorsMiddleware`)
+
+If injecting the CORS handler:
+
+```go
+type Server struct {
+    cors cors.CorsMiddleware
 }
 ```
 
@@ -154,7 +164,7 @@ httpServer := &http.Server{
 
 Import: `"github.com/edro08/go-utils/jwt"`
 
-### Generación y Firma
+### Generation and Signing
 
 ```go
 token, err := jwt.New(jwt.NewTokenOpts{
@@ -164,50 +174,52 @@ token, err := jwt.New(jwt.NewTokenOpts{
     Subject:        "user-12345",
     ExpiredEnabled: true,
     ExpiredTime:    2 * time.Hour,
-    Claims: map[string]any{
+    CustomClaims: map[string]any{
         "role":  "admin",
         "email": "user@example.com",
     },
 })
 if err != nil {
-    // manejar error
+    // handle error
 }
 
-// Firmar el token con clave simétrica
-signedString, err := token.Sign([]byte("mi-clave-secreta"))
+// Sign token using symmetric or asymmetric key
+signedString, err := token.Sign([]byte("my-secret-key"))
 ```
 
-### Verificación y Parseo
+### Verification and Parsing
 
 ```go
-// Verificar validez y firma
-if err := jwt.Verify(signedString, jwt.HS256, []byte("mi-clave-secreta")); err != nil {
-    // token inválido o expirado
+// Verify signature and algorithm
+if err := jwt.Verify(signedString, jwt.HS256, []byte("my-secret-key")); err != nil {
+    // invalid or expired token
 }
 
-// Extraer claims
+// Extract claims without signature verification
 claims, err := jwt.Parse(signedString)
 if err != nil {
-    // error parseando claims
+    // error parsing claims
 }
 role := claims["role"].(string)
 ```
 
 ---
 
-## 5. Criptografía (`cipher`)
+## 5. Cryptography (`cipher`)
 
-### AES-GCM (Cifrado autenticado simétrico recomendado)
+Direct utility invocation without internal state or anchored keys.
+
+### AES-GCM (Recommended Authenticated Symmetric Encryption)
 
 Import: `"github.com/edro08/go-utils/cipher/aesgcm"`
 
 ```go
-key := []byte("clave-de-32-bytes-para-aes-256!!") // 16, 24 o 32 bytes
+key := []byte("32-byte-secret-key-for-aes256!!") // 16, 24, or 32 bytes
 
-// Cifrar
-ciphertext, err := aesgcm.Encrypt(key, []byte("texto plano"))
+// Encrypt
+ciphertext, err := aesgcm.Encrypt(key, []byte("plaintext payload"))
 
-// Descifrar
+// Decrypt
 plaintext, err := aesgcm.Decrypt(key, ciphertext)
 ```
 
@@ -216,20 +228,28 @@ plaintext, err := aesgcm.Decrypt(key, ciphertext)
 Import: `"github.com/edro08/go-utils/cipher/aescbc"`
 
 ```go
-key := []byte("clave-de-32-bytes-para-aes-256!!")
+key := []byte("32-byte-secret-key-for-aes256!!")
+iv := []byte("16-byte-init-vec")
 
-ciphertext, err := aescbc.Encrypt(key, []byte("texto plano"))
-plaintext, err := aescbc.Decrypt(key, ciphertext)
+ciphertext, err := aescbc.Encrypt(key, iv, []byte("plaintext payload"))
+plaintext, err := aescbc.Decrypt(key, iv, ciphertext)
 ```
 
-### RSA (Asimétrico)
+### RSA (Asymmetric)
 
 Import: `"github.com/edro08/go-utils/cipher/rsa"`
 
 ```go
-// Cifrar con clave pública PEM
-encrypted, err := rsa.EncryptWithPublicKey(publicKeyPEM, []byte("mensaje secreto"))
+// Parse public key from PEM bytes or file
+pubKey, err := rsa.ParsePublicKeyFromPEM(publicKeyPEM)
+// or: pubKey, err := rsa.ParsePublicKeyFromPEMFile("./keys/public.pem")
 
-// Descifrar con clave privada PEM
-decrypted, err := rsa.DecryptWithPrivateKey(privateKeyPEM, encrypted)
+// Encrypt with RSA public key
+ciphertext, err := rsa.Encrypt(pubKey, []byte("secret message"))
+
+// Parse private key and decrypt
+privKey, err := rsa.ParsePrivateKeyFromPEM(privateKeyPEM)
+// or: privKey, err := rsa.ParsePrivateKeyFromPEMFile("./keys/private.pem")
+
+plaintext, err := rsa.Decrypt(privKey, ciphertext)
 ```
